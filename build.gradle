@@ -1,0 +1,72 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+// CI builds are stamped with their run number and commit, so a jar always says which build it is
+// (in the mod list, and in the log when the game starts).
+def ciRun = System.getenv("GITHUB_RUN_NUMBER")
+def ciSha = System.getenv("GITHUB_SHA")?.take(7)
+version = ciRun ? "${project.mod_version}-b${ciRun}+${ciSha}" : "${project.mod_version}-dev"
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"bloomcraft" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = "UTF-8"
+	// show every error, not just the first 100
+	it.options.compilerArgs += ["-Xmaxerrs", "1000"]
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+// One stable file name, so a new build simply replaces the old jar in the mods folder.
+jar {
+	archiveVersion.set("")
+	from("LICENSE") {
+		rename { "${it}_bloomcraft" }
+	}
+}
+
+// Used by the "API lookup" workflow: prints the compile classpath (Minecraft, Fabric API, libraries).
+tasks.register("printClasspath") {
+	def files = sourceSets.client.compileClasspath
+	notCompatibleWithConfigurationCache("prints a resolved classpath")
+	doLast {
+		files.each { println "CP " + it }
+	}
+}

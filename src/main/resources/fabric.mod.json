@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "bloomcraft",
+	"version": "${version}",
+	"name": "BloomCraft",
+	"description": "Bosses, relics, pets, quests and skills, for singleplayer and small worlds with friends.",
+	"authors": [
+		"FreshOrangeSlices"
+	],
+	"contact": {
+		"sources": "https://github.com/FreshOrangeSlices/BloomCraft"
+	},
+	"license": "All-Rights-Reserved",
+	"icon": "assets/bloomcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.bloomcraft.BloomCraft"
+		],
+		"client": [
+			"com.bloomcraft.client.BloomCraftClient"
+		]
+	},
+	"mixins": [
+		"bloomcraft.mixins.json",
+		{
+			"config": "bloomcraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
