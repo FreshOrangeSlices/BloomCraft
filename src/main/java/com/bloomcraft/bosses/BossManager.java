@@ -935,8 +935,8 @@ public final class BossManager {
 			ItemEntity drop = new ItemEntity(level, at.x, at.y, at.z, reward,
 				Rng.between(-0.1, 0.1), 0.25, Rng.between(-0.1, 0.1));
 			drop.setGlowingTag(true);
-			drop.setInvulnerable(true);
 			drop.setUnlimitedLifetime();
+			Data.flag(drop, BossKeys.PROTECTED_DROP, true); // can't burn, blow up or be destroyed (ItemEntityMixin)
 			level.addFreshEntity(drop);
 		}
 	}

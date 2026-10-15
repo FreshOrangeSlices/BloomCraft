@@ -167,6 +167,15 @@ public final class Text {
 
 	// =====================================================================
 
+	/** The 16 named colours (and "grey" spellings). */
+	private static final Map<String, Integer> NAMED = Map.ofEntries(
+		Map.entry("black", 0x000000), Map.entry("dark_blue", 0x0000AA), Map.entry("dark_green", 0x00AA00),
+		Map.entry("dark_aqua", 0x00AAAA), Map.entry("dark_red", 0xAA0000), Map.entry("dark_purple", 0xAA00AA),
+		Map.entry("gold", 0xFFAA00), Map.entry("gray", 0xAAAAAA), Map.entry("grey", 0xAAAAAA),
+		Map.entry("dark_gray", 0x555555), Map.entry("dark_grey", 0x555555), Map.entry("blue", 0x5555FF),
+		Map.entry("green", 0x55FF55), Map.entry("aqua", 0x55FFFF), Map.entry("red", 0xFF5555),
+		Map.entry("light_purple", 0xFF55FF), Map.entry("yellow", 0xFFFF55), Map.entry("white", 0xFFFFFF));
+
 	private static final class Parser {
 
 		private final String in;
@@ -325,11 +334,7 @@ public final class Text {
 					return null;
 				}
 			}
-			ChatFormatting f = ChatFormatting.getByName(s);
-			if (f != null && f.isColor() && f.getColor() != null) {
-				return f.getColor();
-			}
-			return null;
+			return NAMED.get(s);
 		}
 	}
 }

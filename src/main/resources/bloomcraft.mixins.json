@@ -5,6 +5,7 @@
 	"mixins": [
 		"CreeperAccessor",
 		"EntityMixin",
+		"ItemEntityMixin",
 		"LivingEntityMixin",
 		"MobMixin"
 	],

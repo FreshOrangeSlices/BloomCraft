@@ -30,6 +30,8 @@ public final class BossKeys {
 	public static final String STATUE = "statue";
 	/** A mob that may still become a boss: how it spawned (rolled when it joins the world). */
 	public static final String PENDING_ROLL = "boss_roll";
+	/** On a dropped reward item: it can't be destroyed. */
+	public static final String PROTECTED_DROP = "protected_drop";
 
 	// ---- on players ----
 	public static String kills(BossRank rank) {

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -149,7 +148,7 @@ public final class Presentation {
 			spawn(level, ParticleTypes.BUBBLE_POP, at, 3, spread, 0.4, 0.02);
 			spawn(level, ParticleTypes.DRIPPING_WATER, at, 2, spread, 0.3, 0);
 		} else if (t == EntityTypes.SKELETON || t == EntityTypes.PARCHED) {
-			spawn(level, new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.BONE)), at, 2, spread, 0.4, 0.02);
+			spawn(level, new ItemParticleOption(ParticleTypes.ITEM, Items.BONE), at, 2, spread, 0.4, 0.02);
 		} else if (t == EntityTypes.STRAY) {
 			spawn(level, ParticleTypes.SNOWFLAKE, at, 2, spread, 0.4, 0.01);
 		} else if (t == EntityTypes.BOGGED) {
@@ -158,7 +157,7 @@ public final class Presentation {
 			spawn(level, ParticleTypes.SMOKE, at, 2, spread, 0.5, 0.01);
 			spawn(level, ParticleTypes.SOUL, at, 1, spread, 0.5, 0.01);
 		} else if (t == EntityTypes.ZOMBIE || t == EntityTypes.ZOMBIE_VILLAGER) {
-			spawn(level, new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.ROTTEN_FLESH)), at, 1, spread, 0.4, 0.02);
+			spawn(level, new ItemParticleOption(ParticleTypes.ITEM, Items.ROTTEN_FLESH), at, 1, spread, 0.4, 0.02);
 		} else if (t == EntityTypes.HUSK) {
 			spawn(level, new BlockParticleOption(ParticleTypes.FALLING_DUST, Blocks.SAND.defaultBlockState()), at, 2, spread, 0.4, 0);
 		} else if (t == EntityTypes.SPIDER || t == EntityTypes.CAVE_SPIDER) {

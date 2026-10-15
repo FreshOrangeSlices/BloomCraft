@@ -75,7 +75,7 @@ public final class SafeSpots {
 	/** Air-like: nothing to collide with and no liquid. */
 	public static boolean open(ServerLevel level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		return !state.blocksMotion() && state.getFluidState().isEmpty();
+		return state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().isEmpty();
 	}
 
 	public static float yawTowards(Vec3 from, Vec3 to) {

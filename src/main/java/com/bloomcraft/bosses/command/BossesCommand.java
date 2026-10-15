@@ -391,7 +391,7 @@ public final class BossesCommand {
 		}
 		MutableComponent name = item.getHoverName().copy();
 		if (!target.getInventory().add(item)) {
-			target.drop(item, false);
+			target.spawnAtLocation(target.level(), item);
 		}
 		c.getSource().sendSystemMessage(Component.literal("Gave ").withStyle(ChatFormatting.GRAY).append(name)
 			.append(Component.literal(" to " + target.getName().getString() + ".").withStyle(ChatFormatting.GRAY)));

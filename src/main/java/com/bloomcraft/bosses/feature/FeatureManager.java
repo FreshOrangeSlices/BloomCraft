@@ -211,7 +211,7 @@ public final class FeatureManager {
 
 	private static void give(ServerPlayer player, ItemStack item) {
 		if (!player.getInventory().add(item)) {
-			player.drop(item, false);
+			player.spawnAtLocation(player.level(), item);
 		}
 	}
 }
