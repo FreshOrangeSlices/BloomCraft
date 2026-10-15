@@ -1,0 +1,83 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "loot",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_loot"
+        }
+      },
+      {
+        "when": "fortune",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_fortune"
+        }
+      },
+      {
+        "when": "reach",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_reach"
+        }
+      },
+      {
+        "when": "attack-damage",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_attack_damage"
+        }
+      },
+      {
+        "when": "attack-speed",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_attack_speed"
+        }
+      },
+      {
+        "when": "max-health",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_max_health"
+        }
+      },
+      {
+        "when": "armor",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_armor"
+        }
+      },
+      {
+        "when": "armor-toughness",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_armor_toughness"
+        }
+      },
+      {
+        "when": "knockback-resistance",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_knockback_resistance"
+        }
+      },
+      {
+        "when": "movement-speed",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/rune_movement_speed"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "bloomcraft:item/rune_attack_damage"
+    }
+  }
+}

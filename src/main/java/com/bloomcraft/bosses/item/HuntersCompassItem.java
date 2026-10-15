@@ -31,6 +31,10 @@ public class HuntersCompassItem extends Item {
 
 	@Override
 	public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+		if (BossItems.kind(stack) == null && Bosses.get().settings() != null) {
+			// freshly crafted: give it its name, lore and tier
+			stack.applyComponents(BossItems.compass(1).getComponentsPatch());
+		}
 		if (entity instanceof ServerPlayer player && (slot == EquipmentSlot.MAINHAND || slot == EquipmentSlot.OFFHAND)
 			&& level.getGameTime() % 10 == 0) {
 			Bosses.get().compass().update(player, stack);

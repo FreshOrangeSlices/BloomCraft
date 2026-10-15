@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:compass",
+    "minecraft:ender_eye",
+    "minecraft:bone"
+  ],
+  "result": {
+    "count": 1,
+    "id": "bloomcraft:hunters_compass"
+  }
+}

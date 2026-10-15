@@ -1,0 +1,202 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "blood-pact",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_blood_pact"
+        }
+      },
+      {
+        "when": "soul-harvest",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_soul_harvest"
+        }
+      },
+      {
+        "when": "second-dawn",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_second_dawn"
+        }
+      },
+      {
+        "when": "bramble-heart",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_bramble_heart"
+        }
+      },
+      {
+        "when": "emberheart",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_emberheart"
+        }
+      },
+      {
+        "when": "frostbite",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_frostbite"
+        }
+      },
+      {
+        "when": "stormcaller",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_stormcaller"
+        }
+      },
+      {
+        "when": "windstep",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_windstep"
+        }
+      },
+      {
+        "when": "hunters-mark",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_hunters_mark"
+        }
+      },
+      {
+        "when": "echo-strike",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_echo_strike"
+        }
+      },
+      {
+        "when": "owls-sight",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_owls_sight"
+        }
+      },
+      {
+        "when": "lodestone",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_lodestone"
+        }
+      },
+      {
+        "when": "aegis",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_aegis"
+        }
+      },
+      {
+        "when": "featherweight",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_featherweight"
+        }
+      },
+      {
+        "when": "prospector",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_prospector"
+        }
+      },
+      {
+        "when": "iron-will",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_iron_will"
+        }
+      },
+      {
+        "when": "blood-mending",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_blood_mending"
+        }
+      },
+      {
+        "when": "skybound",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_skybound"
+        }
+      },
+      {
+        "when": "ember-ward",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_ember_ward"
+        }
+      },
+      {
+        "when": "tidebound",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_tidebound"
+        }
+      },
+      {
+        "when": "ocean-grace",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_ocean_grace"
+        }
+      },
+      {
+        "when": "villager-favor",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_villager_favor"
+        }
+      },
+      {
+        "when": "miners-favor",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_miners_favor"
+        }
+      },
+      {
+        "when": "nightstalker",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_nightstalker"
+        }
+      },
+      {
+        "when": "sunblessed",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_sunblessed"
+        }
+      },
+      {
+        "when": "greed",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_greed"
+        }
+      },
+      {
+        "when": "heavy-crown",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/relic_heavy_crown"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "bloomcraft:item/relic_unknown"
+    }
+  }
+}

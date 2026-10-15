@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "bloomcraft:block/waystone_top",
+    "side": "bloomcraft:block/waystone_side"
+  }
+}

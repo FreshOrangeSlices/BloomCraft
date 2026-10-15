@@ -94,6 +94,9 @@ public final class CombatPipeline {
 		}
 		float after = victim.isDeadOrDying() ? 0 : victim.getHealth() + victim.getAbsorptionAmount();
 		double finalDamage = Math.max(0, before - after);
+		if (victim instanceof ServerPlayer player && finalDamage > 0 && mod.waystones().isTravelling(player.getUUID())) {
+			mod.waystones().cancelTravel(player.getUUID(), true); // taking damage breaks the waystone's pull
+		}
 		afterDamage(mod, victim, ctx, attacker, attackerBoss, victimBoss, finalDamage);
 		return true;
 	}

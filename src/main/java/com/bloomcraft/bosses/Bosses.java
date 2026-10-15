@@ -6,7 +6,9 @@ import com.bloomcraft.bosses.config.BossSettings;
 import com.bloomcraft.bosses.feature.CompassManager;
 import com.bloomcraft.bosses.feature.EscalationManager;
 import com.bloomcraft.bosses.feature.FeatureManager;
+import com.bloomcraft.bosses.feature.LootBonus;
 import com.bloomcraft.bosses.guide.GuideBook;
+import com.bloomcraft.bosses.waystone.Waystones;
 import com.bloomcraft.bosses.item.ModItems;
 import com.bloomcraft.bosses.item.Statues;
 import com.bloomcraft.bosses.nemesis.NemesisManager;
@@ -64,6 +66,7 @@ public final class Bosses {
 	private final CompassManager compass = new CompassManager(this);
 	private final Statues statues = new Statues(this);
 	private final GuideBook guide = new GuideBook(this);
+	private final Waystones waystones = new Waystones(this);
 
 	private Bosses() {
 		instance = this;
@@ -141,6 +144,10 @@ public final class Bosses {
 		return guide;
 	}
 
+	public Waystones waystones() {
+		return waystones;
+	}
+
 	public void later(int ticks, Runnable task) {
 		Scheduler.later(ticks, task);
 	}
@@ -155,9 +162,11 @@ public final class Bosses {
 			WorldStore.load(server);
 			load();
 			nemesis.load();
+			waystones.load();
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			nemesis.shutdown();
+			waystones.shutdown();
 			bosses.shutdown();
 			relics.shutdown(server);
 			Scheduler.clear();
@@ -280,11 +289,14 @@ public final class Bosses {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			relics.forget(handler.getPlayer());
 			escalation.forget(handler.getPlayer().getUUID());
+			waystones.forget(handler.getPlayer().getUUID());
 		});
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 			BossesCommand.register(dispatcher, this));
 		CurseEvents.register(this);
+		waystones.registerEvents();
+		LootBonus.register(this);
 	}
 
 	private void tick(MinecraftServer server) {
@@ -302,6 +314,14 @@ public final class Bosses {
 		}
 		if (now % 100 == 0) {
 			nemesis.checkReturns();
+		}
+		if (now % 40 == 0 && settings.waystonesEnabled) {
+			waystones.upkeep(server);
+		}
+		if (now % 100 == 50) {
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				features.questFlags(player);
+			}
 		}
 	}
 

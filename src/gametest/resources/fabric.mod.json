@@ -9,7 +9,8 @@
 			"com.bloomcraft.test.SmokeTest",
 			"com.bloomcraft.test.BossTest",
 			"com.bloomcraft.test.CurseTest",
-			"com.bloomcraft.test.NemesisTest"
+			"com.bloomcraft.test.NemesisTest",
+			"com.bloomcraft.test.WaystoneTest"
 		]
 	},
 	"depends": {

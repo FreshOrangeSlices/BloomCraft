@@ -325,9 +325,9 @@ public final class BossItems {
 		return item;
 	}
 
-	/** Waystones arrive with the waystone part of the mod. */
+	/** A waystone item (place it to join the network). */
 	public static @Nullable ItemStack waystone() {
-		return null;
+		return com.bloomcraft.bosses.waystone.Waystones.item(null);
 	}
 
 	public static final String[] COMPASS_TIER_NAMES = {"Worn", "Keen", "Masterwork", "Mythic", "Legendary"};

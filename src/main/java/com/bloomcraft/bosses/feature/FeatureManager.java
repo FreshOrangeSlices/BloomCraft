@@ -209,6 +209,32 @@ public final class FeatureManager {
 		});
 	}
 
+	/**
+	 * Quest Book flags for what a player carries (Boss Gear, a found Relic, a Soul), checked every few seconds, so
+	 * items from a pickup, a chest or a command all count.
+	 */
+	public void questFlags(ServerPlayer player) {
+		var inv = player.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			ItemStack item = inv.getItem(i);
+			BossItems.Kind kind = BossItems.kind(item);
+			if (kind == null) {
+				continue;
+			}
+			switch (kind) {
+				case GEAR -> QuestFlags.markOnce(player, "boss_gear");
+				case RELIC -> {
+					if (!BossItems.data(item).getBooleanOr("starter", false)) {
+						QuestFlags.markOnce(player, "relic_found");
+					}
+				}
+				case SOUL -> QuestFlags.markOnce(player, "soul_found");
+				default -> {
+				}
+			}
+		}
+	}
+
 	private static void give(ServerPlayer player, ItemStack item) {
 		if (!player.getInventory().add(item)) {
 			player.spawnAtLocation(player.level(), item);

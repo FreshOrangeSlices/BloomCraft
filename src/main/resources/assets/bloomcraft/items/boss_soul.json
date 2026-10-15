@@ -1,0 +1,55 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "gray",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_gray"
+        }
+      },
+      {
+        "when": "green",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_green"
+        }
+      },
+      {
+        "when": "red",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_red"
+        }
+      },
+      {
+        "when": "purple",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_purple"
+        }
+      },
+      {
+        "when": "gold",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_gold"
+        }
+      },
+      {
+        "when": "ascendant",
+        "model": {
+          "type": "minecraft:model",
+          "model": "bloomcraft:item/boss_soul_ascendant"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "bloomcraft:item/boss_soul_gray"
+    }
+  }
+}
