@@ -77,7 +77,7 @@ public final class RelicManager {
 			}
 		}
 		MinecraftServer server = Ticks.server();
-		if (server != null) {
+		if (server != null && server.getPlayerList() != null) {
 			for (ServerPlayer p : server.getPlayerList().getPlayers()) {
 				deactivateMissing(p, cache.get(p.getUUID()), List.of());
 			}
