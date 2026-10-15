@@ -11,6 +11,9 @@
 			"com.bloomcraft.test.CurseTest",
 			"com.bloomcraft.test.NemesisTest",
 			"com.bloomcraft.test.WaystoneTest"
+		],
+		"fabric-client-gametest": [
+			"com.bloomcraft.test.client.ScreenshotTest"
 		]
 	},
 	"depends": {
