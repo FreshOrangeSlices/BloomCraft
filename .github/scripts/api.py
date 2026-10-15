@@ -48,7 +48,7 @@ def main():
             expanded.append(name)
     for i in range(0, len(expanded), 40):
         batch = expanded[i:i + 40]
-        result = subprocess.run(["javap", "-protected", "-cp", ":".join(jars), *batch],
+        result = subprocess.run(["javap", "-private", "-cp", ":".join(jars), *batch],
                                 capture_output=True, text=True)
         out.append(result.stdout)
         if result.stderr.strip():
