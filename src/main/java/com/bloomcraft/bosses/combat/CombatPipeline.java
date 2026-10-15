@@ -7,12 +7,18 @@ import com.bloomcraft.bosses.config.BossSettings;
 import com.bloomcraft.bosses.trait.BossTrait;
 import com.bloomcraft.core.Ticks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.bloomcraft.core.Fx;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.AABB;
 
 /**
  * The single damage pipeline for bosses and relics, wrapped around LivingEntity#hurtServer:
@@ -38,6 +44,10 @@ public final class CombatPipeline {
 			return original.call(level, source, amount);
 		}
 		BossSettings s = mod.settings();
+		if (source.is(DamageTypes.IN_WALL) && s.breakFreeWhenStuck && mod.bosses().get(victim) != null
+			&& breakFree(victim, level)) {
+			return false; // a boss stuck in blocks tears its way out instead of suffocating
+		}
 		DamageContext ctx = DamageContext.of(source);
 		LivingEntity attacker = ctx.attacker();
 		Boss attackerBoss = attacker == null || attacker == victim ? null : mod.bosses().get(attacker);
@@ -99,6 +109,38 @@ public final class CombatPipeline {
 		}
 		afterDamage(mod, victim, ctx, attacker, attackerBoss, victimBoss, finalDamage);
 		return true;
+	}
+
+	/**
+	 * Breaks the blocks around a suffocating boss's eyes (like the game's own check: not the floor it stands on).
+	 * Unbreakable and very hard blocks, containers and budding amethyst are left alone; mob griefing must be on.
+	 */
+	private static boolean breakFree(LivingEntity boss, ServerLevel level) {
+		if (!level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+			return false;
+		}
+		AABB box = boss.getBoundingBox();
+		double eye = boss.getEyeY();
+		double half = boss.getBbWidth() * 0.4;
+		boolean freed = false;
+		for (int x = (int) Math.floor(boss.getX() - half); x <= (int) Math.floor(boss.getX() + half); x++) {
+			for (int y = (int) Math.floor(Math.max(box.minY + 0.6, eye - 0.3)); y <= (int) Math.floor(eye + 0.2); y++) {
+				for (int z = (int) Math.floor(boss.getZ() - half); z <= (int) Math.floor(boss.getZ() + half); z++) {
+					BlockPos pos = new BlockPos(x, y, z);
+					BlockState state = level.getBlockState(pos);
+					float hardness = state.getDestroySpeed(level, pos);
+					if (state.getCollisionShape(level, pos).isEmpty() || !state.getFluidState().isEmpty() || hardness < 0
+						|| hardness >= 50 || state.hasBlockEntity() || state.is(Blocks.BUDDING_AMETHYST)) {
+						continue;
+					}
+					freed |= level.destroyBlock(pos, true, boss, 512);
+				}
+			}
+		}
+		if (freed) {
+			Fx.play(boss, "entity.zombie.break_wooden_door", 0.8f, 0.8f);
+		}
+		return freed;
 	}
 
 	/** Armor past 20 keeps paying off against bosses: 5% less damage from them per point over. */

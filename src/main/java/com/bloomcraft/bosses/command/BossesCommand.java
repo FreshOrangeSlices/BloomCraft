@@ -126,7 +126,7 @@ public final class BossesCommand {
 		line(source, "/bosses guide [read 1|2]", "the Boss Hunter's Compendium");
 		if (Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
 			line(source, "/bosses spawn <mob> [rank] [traits]", "spawn a boss where you look");
-			line(source, "/bosses give <player> gear|rune|relic|catalyst|compass|totem|soul ...", "give items");
+			line(source, "/bosses give <player> gear|rune|relic|catalyst|compass|totem|soul|waystone|guide ...", "give items");
 			line(source, "/bosses promote [ranks]", "promote the boss you are looking at");
 			line(source, "/bosses escalate <player>", "trigger an Escalation");
 			line(source, "/bosses curse <player> <curse|clear> [seconds] [every]", "test a curse on someone");
@@ -521,10 +521,19 @@ public final class BossesCommand {
 		player.then(item("relic", c -> BossItems.randomRelic())
 			.then(Commands.argument("relic", StringArgumentType.word())
 				.suggests((c, b) -> SharedSuggestionProvider.suggest(relicIds(mod, false, true), b))
-				.executes(c -> giveRelic(c, mod, StringArgumentType.getString(c, "relic"), "random"))
+				.executes(c -> giveRelic(c, mod, StringArgumentType.getString(c, "relic"), "random", false))
 				.then(Commands.argument("curse", StringArgumentType.word())
 					.suggests((c, b) -> SharedSuggestionProvider.suggest(relicIds(mod, true, true), b))
-					.executes(c -> giveRelic(c, mod, StringArgumentType.getString(c, "relic"), StringArgumentType.getString(c, "curse"))))));
+					.executes(c -> giveRelic(c, mod, StringArgumentType.getString(c, "relic"), StringArgumentType.getString(c, "curse"), false))
+					.then(Commands.literal("starter")
+						.executes(c -> giveRelic(c, mod, StringArgumentType.getString(c, "relic"),
+							StringArgumentType.getString(c, "curse"), true))))));
+		player.then(item("waystone", c -> com.bloomcraft.bosses.waystone.Waystones.item(null)));
+		player.then(Commands.literal("guide").executes(c -> {
+			ServerPlayer target = EntityArgument.getPlayer(c, "player");
+			mod.guide().give(target);
+			return info(c.getSource(), "Gave " + target.getName().getString() + " the guide books.");
+		}));
 		player.then(item("catalyst", c -> BossItems.catalyst()));
 		player.then(item("compass", c -> BossItems.compass(1))
 			.then(Commands.argument("tier", IntegerArgumentType.integer(1, 5))
@@ -563,8 +572,8 @@ public final class BossesCommand {
 		return out;
 	}
 
-	private static int giveRelic(CommandContext<CommandSourceStack> c, Bosses mod, String relicArg, String curseArg)
-		throws CommandSyntaxException {
+	private static int giveRelic(CommandContext<CommandSourceStack> c, Bosses mod, String relicArg, String curseArg,
+								 boolean starter) throws CommandSyntaxException {
 		RelicEffect effect = relicArg.equalsIgnoreCase("random") ? mod.relics().rollEffect() : mod.relics().get(relicArg);
 		if (effect == null || effect.curse()) {
 			return error(c.getSource(), "Unknown relic: " + relicArg);
@@ -574,7 +583,11 @@ public final class BossesCommand {
 			case "random" -> Rng.chance(mod.settings().corruptionChance) ? mod.relics().rollCurse() : null;
 			default -> mod.relics().get(curseArg);
 		};
-		return giveItem(c, BossItems.relic(effect, curse));
+		ItemStack relic = BossItems.relic(effect, curse);
+		if (starter) {
+			BossItems.markStarter(relic); // a gift: counts when bound, but not as "found"
+		}
+		return giveItem(c, relic);
 	}
 
 	private static BossRank rankArg(CommandContext<CommandSourceStack> c, String name, BossRank def) {

@@ -252,6 +252,14 @@ public final class Bosses {
 			if (settings != null && !nemesis.forOwner(player.getUUID()).isEmpty()) {
 				QuestFlags.markOnce(player, "nemesis_created");
 			}
+			// Quest Book catch-up: things done before the quest existed
+			int bound = Data.integer(player, BossKeys.RELICS_BOUND, 0);
+			if (bound > 0) {
+				QuestFlags.markOnce(player, "relic_bound");
+			}
+			if (bound > Data.integer(player, BossKeys.STARTER_RELICS_BOUND, 0)) {
+				QuestFlags.markOnce(player, "relic_found"); // bound one that wasn't a gift
+			}
 			if (settings != null && settings.guideOnFirstJoin && !Data.flag(player, BossKeys.GUIDE_GIVEN)) {
 				Data.flag(player, BossKeys.GUIDE_GIVEN, true);
 				later(40, () -> {

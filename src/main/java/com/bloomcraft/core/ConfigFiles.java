@@ -40,7 +40,8 @@ public final class ConfigFiles {
 				}
 			}
 			try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-				return new Cfg(parse(reader));
+				// anything the file doesn't mention (settings added in a newer version) comes from the default
+				return new Cfg(merge(defaultMap(name), parse(reader)));
 			}
 		} catch (IOException | RuntimeException ex) {
 			BloomCraft.LOG.error("Couldn't read {} ({}); using the built-in defaults", file, ex.toString());
@@ -59,6 +60,29 @@ public final class ConfigFiles {
 			BloomCraft.LOG.error("Couldn't read the default {}: {}", name, ex.toString());
 			return Cfg.empty();
 		}
+	}
+
+	private static Map<?, ?> defaultMap(String name) {
+		try (InputStream in = defaults(name)) {
+			return in == null ? Map.of() : parse(new java.io.InputStreamReader(in, StandardCharsets.UTF_8));
+		} catch (IOException | RuntimeException ex) {
+			return Map.of();
+		}
+	}
+
+	/** The user's values over the defaults, section by section. */
+	private static Map<Object, Object> merge(Map<?, ?> defaults, Map<?, ?> user) {
+		Map<Object, Object> out = new java.util.LinkedHashMap<>(defaults);
+		for (Map.Entry<?, ?> e : user.entrySet()) {
+			Object mine = e.getValue();
+			Object theirs = out.get(e.getKey());
+			if (mine instanceof Map<?, ?> m && theirs instanceof Map<?, ?> d) {
+				out.put(e.getKey(), merge(d, m));
+			} else {
+				out.put(e.getKey(), mine);
+			}
+		}
+		return out;
 	}
 
 	private static InputStream defaults(String name) {
