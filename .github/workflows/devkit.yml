@@ -1,0 +1,44 @@
+name: Dev kit (development)
+
+# Run by hand while developing: publishes a small JDK 25 and signature-only copies ("stubs", no code) of the
+# Minecraft / Fabric API / library jars to the dev-kit branch, so the mod can be type-checked outside of Gradle.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  kit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Classpaths
+        run: |
+          chmod +x ./gradlew
+          ./gradlew printClasspaths --no-configuration-cache --console=plain -q > cps.txt
+          head -5 cps.txt; wc -l cps.txt
+      - name: Stubs
+        run: java .github/scripts/Stubs.java cps.txt /tmp/kit/stubs
+      - name: JDK
+        run: |
+          jlink --add-modules java.se,jdk.compiler,jdk.jdeps,jdk.zipfs,jdk.unsupported,jdk.jfr,jdk.management,jdk.httpserver \
+            --strip-debug --no-man-pages --no-header-files --compress zip-0 --output /tmp/jdk
+          du -sh /tmp/jdk
+          mkdir -p /tmp/kit/jdk
+          tar -C /tmp -cf - jdk | xz -T0 -6 | split -b 40m - /tmp/kit/jdk/jdk.tar.xz.part-
+          ls -la /tmp/kit/jdk; du -sh /tmp/kit/stubs
+      - name: Publish to dev-kit
+        run: |
+          cd /tmp/kit
+          git init -q -b dev-kit
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Dev kit ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" dev-kit

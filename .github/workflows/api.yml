@@ -13,6 +13,14 @@ on:
         description: Regex to list matching class names
         required: false
         default: ''
+      code:
+        description: Classes to print with bytecode (to aim mixins)
+        required: false
+        default: ''
+      files:
+        description: Regex of resource files to print from the jars (e.g. assets/minecraft/items/compass)
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -35,7 +43,9 @@ jobs:
         env:
           CLASSES: ${{ inputs.classes }}
           SEARCH: ${{ inputs.search }}
-        run: python3 .github/scripts/api.py cp.txt "$CLASSES" "$SEARCH"
+          CODE: ${{ inputs.code }}
+          FILES: ${{ inputs.files }}
+        run: python3 .github/scripts/api.py cp.txt "$CLASSES" "$SEARCH" "$CODE" "$FILES"
       - name: Publish to dev-api
         run: |
           mkdir -p /tmp/out && cp api.txt /tmp/out/api.txt

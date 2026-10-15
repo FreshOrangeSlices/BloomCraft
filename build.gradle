@@ -93,3 +93,16 @@ tasks.register("printClasspath") {
 		files.each { println "CP " + it }
 	}
 }
+
+// Used by the "Dev kit" workflow: prints each source set's compile classpath ("MAIN <file>", "CLIENT <file>", "TEST <file>").
+tasks.register("printClasspaths") {
+	def sets = [MAIN: sourceSets.main.compileClasspath, CLIENT: sourceSets.client.compileClasspath]
+	def test = sourceSets.findByName("gametest")
+	if (test != null) {
+		sets.TEST = test.compileClasspath
+	}
+	notCompatibleWithConfigurationCache("prints resolved classpaths")
+	doLast {
+		sets.each { name, files -> files.each { println "${name} ${it}" } }
+	}
+}
