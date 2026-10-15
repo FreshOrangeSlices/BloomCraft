@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "bloomcraft-test",
+	"version": "1.0.0",
+	"name": "BloomCraft tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"com.bloomcraft.test.SmokeTest"
+		]
+	},
+	"depends": {
+		"bloomcraft": "*"
+	}
+}

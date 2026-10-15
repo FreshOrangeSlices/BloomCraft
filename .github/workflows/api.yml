@@ -1,18 +1,21 @@
 name: API lookup (development)
 
-# Run by hand while developing: lists class names matching a pattern and prints class signatures from the
-# Minecraft / Fabric API classpath, as notice annotations.
+# Run by hand while developing: lists class names matching a pattern and prints class signatures (no code) from
+# the Minecraft / Fabric API classpath. The result is committed to the dev-api branch as api.txt.
 on:
   workflow_dispatch:
     inputs:
       classes:
-        description: Fully qualified class names (space separated) to print
+        description: Fully qualified class names (space separated; "pkg.*" = a whole package)
         required: false
         default: ''
       search:
         description: Regex to list matching class names
         required: false
         default: ''
+
+permissions:
+  contents: write
 
 jobs:
   lookup:
@@ -33,11 +36,13 @@ jobs:
           CLASSES: ${{ inputs.classes }}
           SEARCH: ${{ inputs.search }}
         run: python3 .github/scripts/api.py cp.txt "$CLASSES" "$SEARCH"
-      - name: Report (1)
-        run: python3 .github/scripts/notices.py api.txt 0
-      - name: Report (2)
-        run: python3 .github/scripts/notices.py api.txt 1
-      - name: Report (3)
-        run: python3 .github/scripts/notices.py api.txt 2
-      - name: Report (4)
-        run: python3 .github/scripts/notices.py api.txt 3
+      - name: Publish to dev-api
+        run: |
+          mkdir -p /tmp/out && cp api.txt /tmp/out/api.txt
+          cd /tmp/out
+          git init -q -b dev-api
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add api.txt
+          git commit -q -m "API lookup ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" dev-api

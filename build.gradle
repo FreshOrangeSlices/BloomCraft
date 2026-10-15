@@ -31,6 +31,29 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	productionRuntimeMods "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// The balance file (config/bloomcraft/*.yml) is YAML, read with SnakeYAML, bundled inside the jar.
+	implementation "org.yaml:snakeyaml:${project.snakeyaml_version}"
+	include "org.yaml:snakeyaml:${project.snakeyaml_version}"
+}
+
+// Game tests: server tests (src/gametest) run in every build and check the mod really works in a running game.
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "bloomcraft-test"
+		enableGameTests = true
+		enableClientGameTests = true
+		eula = true // agrees to the Minecraft EULA (https://aka.ms/MinecraftEULA) for the test runs
+	}
+}
+
+// Client game test in a real (virtual-screen) game, taking screenshots: run by the Screenshots workflow.
+tasks.register("runProductionClientGameTest", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+	jvmArgs.add("-Dfabric.client.gametest")
+	jvmArgs.add("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
+	useXVFB = true
 }
 
 processResources {
