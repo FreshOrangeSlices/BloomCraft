@@ -68,6 +68,12 @@ public final class CombatPipeline {
 			mod.relics().onDamaged(player, ctx);
 		}
 		double overflow = victim instanceof ServerPlayer player && attackerBoss != null ? overflowArmor(s, player) : 1.0;
+		if (victimBoss != null && victimBoss.isNemesis() && !ctx.secondary()) {
+			mod.nemesis().onHurt(victimBoss, ctx); // what it has adapted to hurts it less (or not at all)
+		}
+		if (attackerBoss != null && attackerBoss.isNemesis() && BossManager.isPet(victim)) {
+			mod.nemesis().onHitPet(attackerBoss, ctx);
+		}
 
 		if (ctx.cancelled()) {
 			return false;
@@ -103,6 +109,9 @@ public final class CombatPipeline {
 
 	private static void afterDamage(Bosses mod, LivingEntity victim, DamageContext ctx, LivingEntity attacker,
 									 Boss attackerBoss, Boss victimBoss, double finalDamage) {
+		if (victim instanceof ServerPlayer hurt && attacker != null && (attackerBoss != null || BossManager.isMinion(attacker))) {
+			mod.nemesis().markBossHit(hurt); // (a death a boss set up never counts as a surrender)
+		}
 		if (attackerBoss != null) {
 			if (victim instanceof ServerPlayer player) {
 				mod.bosses().engage(attackerBoss, player);
@@ -115,8 +124,14 @@ public final class CombatPipeline {
 		}
 		if (victimBoss != null) {
 			if (attacker instanceof ServerPlayer player) {
+				if (victimBoss.isNemesis()) {
+					mod.nemesis().onProvoked(victimBoss, player);
+				}
 				mod.bosses().engage(victimBoss, player);
 				victimBoss.recordPlayerHit(player.getUUID(), finalDamage, ctx.projectile());
+			}
+			if (victimBoss.isNemesis()) {
+				mod.nemesis().recordDamage(victimBoss, ctx.source(), attacker, finalDamage);
 			}
 			if (victim.isAlive()) {
 				for (BossTrait trait : victimBoss.traits()) {

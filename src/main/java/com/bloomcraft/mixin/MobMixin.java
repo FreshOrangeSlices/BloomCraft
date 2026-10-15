@@ -1,6 +1,10 @@
 package com.bloomcraft.mixin;
 
+import com.bloomcraft.bosses.Boss;
 import com.bloomcraft.bosses.Bosses;
+import com.bloomcraft.bosses.item.Statues;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
@@ -25,11 +29,36 @@ abstract class MobMixin {
 		}
 	}
 
-	/** Undead bosses don't burn in daylight. */
+	/** Undead bosses (and statues) don't burn in daylight. */
 	@Inject(method = "burnUndead", at = @At("HEAD"), cancellable = true)
 	private void bloomcraft$noSunburn(CallbackInfo ci) {
 		Bosses mod = Bosses.get();
-		if (mod != null && mod.bosses().get((Mob) (Object) this) != null) {
+		Mob self = (Mob) (Object) this;
+		if (mod != null && (mod.bosses().get(self) != null || Statues.isStatue(self))) {
+			ci.cancel();
+		}
+	}
+
+	/** Statues stay, even in Peaceful. */
+	@Inject(method = "checkDespawn", at = @At("HEAD"), cancellable = true)
+	private void bloomcraft$statuesStay(CallbackInfo ci) {
+		if (Statues.isStatue((Mob) (Object) this)) {
+			ci.cancel();
+		}
+	}
+
+	/** A prowling Nemesis is busy hunting other mobs: it leaves players alone unless they attack it. */
+	@Inject(method = "setTarget", at = @At("HEAD"), cancellable = true)
+	private void bloomcraft$prowling(LivingEntity target, CallbackInfo ci) {
+		if (!(target instanceof ServerPlayer player)) {
+			return;
+		}
+		Bosses mod = Bosses.get();
+		if (mod == null || mod.settings() == null) {
+			return;
+		}
+		Boss boss = mod.bosses().get((Mob) (Object) this);
+		if (boss != null && boss.isNemesis() && !mod.nemesis().mayTarget(boss, player)) {
 			ci.cancel();
 		}
 	}

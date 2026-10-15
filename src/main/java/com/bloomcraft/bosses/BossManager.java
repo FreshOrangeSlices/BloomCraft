@@ -818,7 +818,7 @@ public final class BossManager {
 			// (worked out before onSlain, which ends the Nemesis's record)
 			BossRank wild = boss.isNemesis() ? bosses.nemesis().soulRank(boss) : wildRank(e, boss.rank());
 			if (boss.isNemesis()) {
-				bosses.nemesis().onSlain(boss, killer, rewards);
+				xp *= bosses.nemesis().onSlain(boss, killer, rewards);
 			}
 			// Bosses players made don't drop Souls or Totems, so they can't feed themselves. A Nemesis always
 			// drops Souls; one called by its Challenge just no Totem.

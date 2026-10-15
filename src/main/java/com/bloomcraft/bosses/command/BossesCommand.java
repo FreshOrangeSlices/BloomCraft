@@ -9,6 +9,7 @@ import com.bloomcraft.bosses.config.BossSettings;
 import com.bloomcraft.bosses.config.EmpowermentStat;
 import com.bloomcraft.bosses.config.MobCategory;
 import com.bloomcraft.bosses.item.BossItems;
+import com.bloomcraft.bosses.nemesis.NemesisRecord;
 import com.bloomcraft.bosses.relic.RelicEffect;
 import com.bloomcraft.bosses.relic.RelicManager;
 import com.bloomcraft.bosses.reward.GearKind;
@@ -98,7 +99,8 @@ public final class BossesCommand {
 							.executes(c -> spawn(c, StringArgumentType.getString(c, "rank"),
 								StringArgumentType.getString(c, "traits")))))))
 			.then(give(mod))
-			.then(curse(mod));
+			.then(curse(mod))
+			.then(nemesis(mod));
 		var node = dispatcher.register(root);
 		dispatcher.register(Commands.literal("ab").redirect(node));
 		dispatcher.register(Commands.literal("boss").redirect(node));
@@ -111,12 +113,15 @@ public final class BossesCommand {
 		line(source, "/bosses apply", "use the rune/relic in one hand on the item in the other");
 		line(source, "/bosses inspect", "look at a boss, or inspect your held item");
 		line(source, "/bosses stats", "your boss-hunting record");
+		line(source, "/bosses nemesis", "what is hunting you");
 		if (Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
 			line(source, "/bosses spawn <mob> [rank] [traits]", "spawn a boss where you look");
 			line(source, "/bosses give <player> gear|rune|relic|catalyst|compass|totem|soul ...", "give items");
 			line(source, "/bosses promote [ranks]", "promote the boss you are looking at");
 			line(source, "/bosses escalate <player>", "trigger an Escalation");
 			line(source, "/bosses curse <player> <curse|clear> [seconds] [every]", "test a curse on someone");
+			line(source, "/bosses nemesis list|summon|challenge|clear <player>", "Nemesis tools");
+			line(source, "/bosses nemesis create <player> [mob] [rank]", "make a Nemesis (the boss you look at, or a new one)");
 			line(source, "/bosses list | killall | reload", "admin tools");
 		}
 		return 1;
@@ -293,6 +298,122 @@ public final class BossesCommand {
 		}
 		BossManager.markCreated(boss, "command");
 		source.sendSystemMessage(Component.literal("Spawned ").withStyle(ChatFormatting.GRAY).append(boss.name()));
+		return 1;
+	}
+
+	// =====================================================================
+	// nemesis
+	// =====================================================================
+
+	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> nemesis(Bosses mod) {
+		return Commands.literal("nemesis")
+			.executes(c -> myNemeses(c.getSource(), mod))
+			.then(Commands.literal("list").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.executes(c -> listNemeses(c.getSource(), mod, null))
+				.then(Commands.argument("player", EntityArgument.player())
+					.executes(c -> listNemeses(c.getSource(), mod, EntityArgument.getPlayer(c, "player")))))
+			.then(Commands.literal("summon").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.argument("player", EntityArgument.player()).executes(c -> {
+					ServerPlayer p = EntityArgument.getPlayer(c, "player");
+					return info(c.getSource(), "Called " + mod.nemesis().summonNow(p.getUUID()) + " Nemes(es) to "
+						+ p.getName().getString() + ".");
+				})))
+			.then(Commands.literal("challenge").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.argument("player", EntityArgument.player()).executes(c -> {
+					ServerPlayer p = EntityArgument.getPlayer(c, "player");
+					int n = mod.nemesis().reissueChallenges(p);
+					return info(c.getSource(), "Gave " + p.getName().getString() + " " + n + " Challenge" + (n == 1 ? "" : "s") + ".");
+				})))
+			.then(Commands.literal("clear").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.argument("player", EntityArgument.player()).executes(c -> {
+					ServerPlayer p = EntityArgument.getPlayer(c, "player");
+					return info(c.getSource(), "Removed " + mod.nemesis().clear(p.getUUID()) + " Nemes(es) of "
+						+ p.getName().getString() + ".");
+				})))
+			.then(Commands.literal("create").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.argument("player", EntityArgument.player())
+					.executes(c -> createNemesis(c, mod, null, null))
+					.then(Commands.argument("mob", StringArgumentType.word()).suggests(MOBS)
+						.executes(c -> createNemesis(c, mod, StringArgumentType.getString(c, "mob"), null))
+						.then(Commands.argument("rank", StringArgumentType.word()).suggests(RANKS)
+							.executes(c -> createNemesis(c, mod, StringArgumentType.getString(c, "mob"),
+								StringArgumentType.getString(c, "rank")))))));
+	}
+
+	private static int myNemeses(CommandSourceStack source, Bosses mod) throws CommandSyntaxException {
+		ServerPlayer player = source.getPlayerOrException();
+		List<NemesisRecord> mine = mod.nemesis().forOwner(player.getUUID());
+		if (mine.isEmpty()) {
+			return info(source, "Nothing is hunting you... yet.");
+		}
+		player.sendSystemMessage(Component.literal("Your Nemeses").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+		for (NemesisRecord r : mine) {
+			player.sendSystemMessage(Component.literal(" ").append(mod.nemesis().displayName(r)));
+			info(source, "   killed you " + r.kills + "x, you fled " + r.escapes + "x, " + r.traits.size()
+				+ " traits - " + mod.nemesis().describeReturn(r));
+		}
+		return mine.size();
+	}
+
+	private static int listNemeses(CommandSourceStack source, Bosses mod, @Nullable ServerPlayer of) {
+		List<NemesisRecord> all = of == null ? mod.nemesis().all() : mod.nemesis().forOwner(of.getUUID());
+		info(source, all.size() + " Nemes" + (all.size() == 1 ? "is" : "es") + ":");
+		for (NemesisRecord r : all) {
+			source.sendSystemMessage(Component.literal(" • ").withStyle(ChatFormatting.DARK_GRAY)
+				.append(mod.nemesis().displayName(r))
+				.append(Component.literal("  hunts " + r.ownerName + ", " + mod.nemesis().describeReturn(r))
+					.withStyle(ChatFormatting.GRAY)));
+			StringBuilder adapted = new StringBuilder();
+			r.adapted.forEach((kind, level) -> adapted.append(adapted.isEmpty() ? "" : ", ")
+				.append(kind.plain()).append(level >= 2 ? " (immune)" : " (resists)"));
+			source.sendSystemMessage(Component.literal("     adapted to: " + (adapted.isEmpty() ? "nothing yet" : adapted)
+				+ "; surrender: " + r.surrender.plain()).withStyle(ChatFormatting.DARK_GRAY));
+		}
+		return all.size();
+	}
+
+	/**
+	 * /bosses nemesis create <player> [mob] [rank]: makes the boss you look at that player's Nemesis, or (with a mob)
+	 * spawns a fresh boss near them and makes it theirs. It comes for them straight away.
+	 */
+	private static int createNemesis(CommandContext<CommandSourceStack> c, Bosses mod, @Nullable String mob,
+									 @Nullable String rankArg) throws CommandSyntaxException {
+		ServerPlayer target = EntityArgument.getPlayer(c, "player");
+		CommandSourceStack source = c.getSource();
+		Boss boss;
+		if (mob == null) {
+			boss = source.getEntity() instanceof ServerPlayer looker ? mod.bosses().get(lookedAt(looker, 24)) : null;
+			if (boss == null) {
+				return error(source, "Look at a boss, or name a mob: /bosses nemesis create <player> <mob> [rank]");
+			}
+		} else {
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getOptional(
+				net.minecraft.resources.Identifier.tryParse(mob.contains(":") ? mob : "minecraft:" + mob)).orElse(null);
+			BossRank rank = rankArg == null ? BossRank.RED : BossRank.parse(rankArg);
+			if (type == null || rank == null) {
+				return error(source, "Unknown mob or rank.");
+			}
+			Vec3 at = com.bloomcraft.core.SafeSpots.around(target.level(), target.position(), 12, 18, 16);
+			if (at == null) {
+				return error(source, "No room around " + target.getName().getString() + ".");
+			}
+			boss = mod.bosses().summon(type, target.level(), at, rank, null, false, "nemesis");
+			if (boss == null) {
+				return error(source, "That mob can't be a boss here.");
+			}
+			com.bloomcraft.bosses.BossManager.markCreated(boss, "command");
+		}
+		if (boss.isNemesis()) {
+			return error(source, "That boss is already a Nemesis.");
+		}
+		NemesisRecord r = mod.nemesis().forceCreate(boss, target);
+		if (r == null) {
+			return error(source, "Couldn't make a Nemesis.");
+		}
+		mod.bosses().engage(boss, target);
+		source.sendSystemMessage(Component.literal("Created ").withStyle(ChatFormatting.GRAY)
+			.append(mod.nemesis().displayName(r)).append(Component.literal(" for " + target.getName().getString() + ".")
+				.withStyle(ChatFormatting.GRAY)));
 		return 1;
 	}
 

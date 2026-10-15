@@ -29,6 +29,10 @@ public final class ModItems {
 		new Item.Properties().stacksTo(64).rarity(Rarity.EPIC));
 	public static final Item HUNTERS_COMPASS = register("hunters_compass", HuntersCompassItem::new,
 		new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+	public static final Item NEMESIS_CHALLENGE = register("nemesis_challenge", ChallengeItem::new,
+		new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+	public static final Item NEMESIS_STATUE = register("nemesis_statue", StatueItem::new,
+		new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 
 	public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, BloomCraft.id("bosses"));
 
