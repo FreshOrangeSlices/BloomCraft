@@ -6,7 +6,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
-			"com.bloomcraft.test.SmokeTest"
+			"com.bloomcraft.test.SmokeTest",
+			"com.bloomcraft.test.BossTest"
 		]
 	},
 	"depends": {

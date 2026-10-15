@@ -1,5 +1,6 @@
 package com.bloomcraft;
 
+import com.bloomcraft.bosses.Bosses;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
@@ -24,5 +25,6 @@ public final class BloomCraft implements ModInitializer {
 				.map(c -> c.getMetadata().getVersion().getFriendlyString())
 				.orElse("?");
 		LOG.info("BloomCraft {} loading", version);
+		Bosses.init();
 	}
 }
