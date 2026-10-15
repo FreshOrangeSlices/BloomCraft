@@ -69,6 +69,22 @@ public final class RelicUtil {
 		return Math.max(level.getBrightness(LightLayer.BLOCK, pos), level.isBrightOutside() ? skyLight(level, pos) : 0);
 	}
 
+	/** A spot a few blocks behind the player (give or take 50 degrees), for sounds that seem to come from behind. */
+	public static Vec3 behind(ServerPlayer p, double distance) {
+		Vec3 look = p.getLookAngle();
+		Vec3 back = new Vec3(look.x, 0, look.z);
+		if (back.lengthSqr() < 0.01) {
+			back = new Vec3(1, 0, 0);
+		}
+		back = back.normalize().scale(-distance).yRot((float) Math.toRadians(Rng.between(-50.0, 50.0)));
+		return p.position().add(back);
+	}
+
+	/** Darkness for a few seconds (no particles). */
+	public static void darkness(ServerPlayer p, int ticks) {
+		p.addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.DARKNESS, ticks, 0, false, false));
+	}
+
 	/** The items a mob just dropped (spawned this tick next to it). */
 	public static List<ItemEntity> freshDrops(LivingEntity victim) {
 		AABB box = victim.getBoundingBox().inflate(1.5);

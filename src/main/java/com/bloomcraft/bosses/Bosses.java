@@ -8,6 +8,7 @@ import com.bloomcraft.bosses.feature.EscalationManager;
 import com.bloomcraft.bosses.feature.FeatureManager;
 import com.bloomcraft.bosses.item.ModItems;
 import com.bloomcraft.bosses.nemesis.NemesisManager;
+import com.bloomcraft.bosses.relic.CurseEvents;
 import com.bloomcraft.bosses.relic.RelicManager;
 import com.bloomcraft.bosses.reward.RewardManager;
 import com.bloomcraft.bosses.trait.BossTrait;
@@ -207,6 +208,7 @@ public final class Bosses {
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 			BossesCommand.register(dispatcher, this));
+		CurseEvents.register(this);
 	}
 
 	private void tick(MinecraftServer server) {

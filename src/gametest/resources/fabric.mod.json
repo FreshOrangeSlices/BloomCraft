@@ -7,7 +7,8 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.bloomcraft.test.SmokeTest",
-			"com.bloomcraft.test.BossTest"
+			"com.bloomcraft.test.BossTest",
+			"com.bloomcraft.test.CurseTest"
 		]
 	},
 	"depends": {

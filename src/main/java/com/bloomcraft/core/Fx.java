@@ -78,6 +78,20 @@ public final class Fx {
 		playTo(player, sound(key, volume, pitch));
 	}
 
+	/** Only this player hears it, coming from {@code at} (sounds "behind you"). */
+	public static void playToAt(ServerPlayer player, String key, Vec3 at, float volume, float pitch) {
+		Sound sound = sound(key, volume, pitch);
+		player.connection.send(new ClientboundSoundPacket(sound.event(), SoundSource.HOSTILE, at.x, at.y, at.z,
+			sound.volume(), sound.pitch(), player.getRandom().nextLong()));
+	}
+
+	/** Only this player sees them. */
+	public static void particleTo(ServerPlayer player, ParticleOptions particle, Vec3 at, int count, double spread, double speed) {
+		if (count > 0) {
+			player.level().sendParticles(player, particle, false, false, at.x, at.y, at.z, count, spread, spread, spread, speed);
+		}
+	}
+
 	public static void particle(ServerLevel level, ParticleOptions particle, Vec3 at, int count, double spread, double speed) {
 		if (count > 0) {
 			level.sendParticles(particle, at.x, at.y, at.z, count, spread, spread, spread, speed);

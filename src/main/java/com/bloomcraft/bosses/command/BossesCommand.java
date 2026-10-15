@@ -10,6 +10,7 @@ import com.bloomcraft.bosses.config.EmpowermentStat;
 import com.bloomcraft.bosses.config.MobCategory;
 import com.bloomcraft.bosses.item.BossItems;
 import com.bloomcraft.bosses.relic.RelicEffect;
+import com.bloomcraft.bosses.relic.RelicManager;
 import com.bloomcraft.bosses.reward.GearKind;
 import com.bloomcraft.bosses.trait.BossTrait;
 import com.bloomcraft.core.Data;
@@ -96,7 +97,8 @@ public final class BossesCommand {
 							.suggests((c, b) -> SharedSuggestionProvider.suggest(mod.traits().all().stream().map(BossTrait::id), b))
 							.executes(c -> spawn(c, StringArgumentType.getString(c, "rank"),
 								StringArgumentType.getString(c, "traits")))))))
-			.then(give(mod));
+			.then(give(mod))
+			.then(curse(mod));
 		var node = dispatcher.register(root);
 		dispatcher.register(Commands.literal("ab").redirect(node));
 		dispatcher.register(Commands.literal("boss").redirect(node));
@@ -114,6 +116,7 @@ public final class BossesCommand {
 			line(source, "/bosses give <player> gear|rune|relic|catalyst|compass|totem|soul ...", "give items");
 			line(source, "/bosses promote [ranks]", "promote the boss you are looking at");
 			line(source, "/bosses escalate <player>", "trigger an Escalation");
+			line(source, "/bosses curse <player> <curse|clear> [seconds] [every]", "test a curse on someone");
 			line(source, "/bosses list | killall | reload", "admin tools");
 		}
 		return 1;
@@ -291,6 +294,68 @@ public final class BossesCommand {
 		BossManager.markCreated(boss, "command");
 		source.sendSystemMessage(Component.literal("Spawned ").withStyle(ChatFormatting.GRAY).append(boss.name()));
 		return 1;
+	}
+
+	// =====================================================================
+	// curse (testing curses on a player)
+	// =====================================================================
+
+	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> curse(Bosses mod) {
+		SuggestionProvider<CommandSourceStack> curses = (c, b) -> {
+			List<String> ids = new ArrayList<>(List.of("clear"));
+			for (RelicEffect e : mod.relics().enabledEffects(true)) {
+				ids.add(e.id());
+			}
+			return SharedSuggestionProvider.suggest(ids, b);
+		};
+		var curseArg = Commands.argument("curse", StringArgumentType.word()).suggests(curses)
+			.executes(c -> curse(c, mod, null, null))
+			.then(Commands.argument("seconds", IntegerArgumentType.integer(1, 3600))
+				.executes(c -> curse(c, mod, IntegerArgumentType.getInteger(c, "seconds"), null))
+				.then(Commands.argument("every", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0.5, 600))
+					.executes(c -> curse(c, mod, IntegerArgumentType.getInteger(c, "seconds"),
+						com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(c, "every")))));
+		return Commands.literal("curse").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+			.then(Commands.argument("player", EntityArgument.player()).then(curseArg));
+	}
+
+	/**
+	 * /bosses curse <player> <curse> [seconds] [every]: no seconds fires the curse's moment once (or gives an
+	 * always-on curse for 30s); seconds gives the curse for that long; every also fires it on that rhythm.
+	 */
+	private static int curse(CommandContext<CommandSourceStack> c, Bosses mod, @Nullable Integer seconds,
+							 @Nullable Double every) throws CommandSyntaxException {
+		ServerPlayer target = EntityArgument.getPlayer(c, "player");
+		String arg = StringArgumentType.getString(c, "curse");
+		String who = target.getName().getString();
+		if (arg.equalsIgnoreCase("clear")) {
+			return info(c.getSource(), "Ended " + mod.relics().clearTests(target) + " curse test(s) on " + who + ".");
+		}
+		RelicEffect curse = mod.relics().get(arg);
+		if (curse == null || !curse.curse()) {
+			return error(c.getSource(), "Unknown curse: " + arg);
+		}
+		boolean fires = RelicManager.hasTrigger(curse);
+		if (seconds == null) {
+			if (!fires) {
+				mod.relics().addTest(target, curse, 30);
+				return info(c.getSource(), curse.displayName() + " is always on rather than a single moment, so " + who
+					+ " has it for 30 seconds.");
+			}
+			if (curse.trigger(target, mod.relics())) {
+				return info(c.getSource(), curse.displayName() + " triggered once on " + who + ".");
+			}
+			return error(c.getSource(), curse.displayName() + " couldn't happen right now (already going, or no room around "
+				+ who + "). Try again in a moment.");
+		}
+		mod.relics().addTest(target, curse, seconds);
+		if (every == null || !fires) {
+			return info(c.getSource(), who + " has " + curse.displayName() + " for " + seconds + "s"
+				+ (every != null ? " (it's always on, so there's nothing to repeat)." : ", at its normal odds."));
+		}
+		mod.relics().repeatTest(target, curse, seconds, (int) Math.round(every * 20));
+		return info(c.getSource(), who + " has " + curse.displayName() + " for " + seconds + "s, firing every "
+			+ Text.num(every) + "s.");
 	}
 
 	// =====================================================================
