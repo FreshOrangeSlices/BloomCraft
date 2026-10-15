@@ -69,6 +69,15 @@ public final class BossesCommand {
 			.then(Commands.literal("apply").executes(c -> apply(c.getSource())))
 			.then(Commands.literal("inspect").executes(c -> inspect(c.getSource())))
 			.then(Commands.literal("stats").executes(c -> stats(c.getSource())))
+			.then(Commands.literal("guide")
+				.executes(c -> {
+					mod.guide().give(c.getSource().getPlayerOrException());
+					return 1;
+				})
+				.then(Commands.literal("read")
+					.executes(c -> readGuide(c.getSource(), mod, 1))
+					.then(Commands.argument("volume", IntegerArgumentType.integer(1, 2))
+						.executes(c -> readGuide(c.getSource(), mod, IntegerArgumentType.getInteger(c, "volume"))))))
 			.then(Commands.literal("list").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 				.executes(c -> list(c.getSource())))
 			.then(Commands.literal("killall").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
@@ -114,6 +123,7 @@ public final class BossesCommand {
 		line(source, "/bosses inspect", "look at a boss, or inspect your held item");
 		line(source, "/bosses stats", "your boss-hunting record");
 		line(source, "/bosses nemesis", "what is hunting you");
+		line(source, "/bosses guide [read 1|2]", "the Boss Hunter's Compendium");
 		if (Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
 			line(source, "/bosses spawn <mob> [rank] [traits]", "spawn a boss where you look");
 			line(source, "/bosses give <player> gear|rune|relic|catalyst|compass|totem|soul ...", "give items");
@@ -298,6 +308,12 @@ public final class BossesCommand {
 		}
 		BossManager.markCreated(boss, "command");
 		source.sendSystemMessage(Component.literal("Spawned ").withStyle(ChatFormatting.GRAY).append(boss.name()));
+		return 1;
+	}
+
+	/** /bosses guide read [1|2]: opens a volume without handing over the book (the Quest Book uses this). */
+	private static int readGuide(CommandSourceStack source, Bosses mod, int volume) throws CommandSyntaxException {
+		mod.guide().open(source.getPlayerOrException(), volume);
 		return 1;
 	}
 

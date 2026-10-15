@@ -69,6 +69,17 @@ public class NemesisTest {
 	}
 
 	@GameTest
+	public void guideBooksAreWritten(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		for (ItemStack book : Bosses.get().guide().create(player)) {
+			var content = book.get(net.minecraft.core.component.DataComponents.WRITTEN_BOOK_CONTENT);
+			Check.that(helper, content != null && content.pages().size() > 5 && content.pages().size() <= 100,
+				"book pages: " + (content == null ? "none" : content.pages().size()));
+		}
+		helper.succeed();
+	}
+
+	@GameTest
 	public void surrenderTerms(GameTestHelper helper) {
 		var sources = helper.getLevel().damageSources();
 		Check.that(helper, Surrender.FALL.matches(sources.fall(), EntityTypes.ZOMBIE), "fall");

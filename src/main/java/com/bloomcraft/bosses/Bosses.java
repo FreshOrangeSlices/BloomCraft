@@ -6,6 +6,7 @@ import com.bloomcraft.bosses.config.BossSettings;
 import com.bloomcraft.bosses.feature.CompassManager;
 import com.bloomcraft.bosses.feature.EscalationManager;
 import com.bloomcraft.bosses.feature.FeatureManager;
+import com.bloomcraft.bosses.guide.GuideBook;
 import com.bloomcraft.bosses.item.ModItems;
 import com.bloomcraft.bosses.item.Statues;
 import com.bloomcraft.bosses.nemesis.NemesisManager;
@@ -62,6 +63,7 @@ public final class Bosses {
 	private final FeatureManager features = new FeatureManager(this);
 	private final CompassManager compass = new CompassManager(this);
 	private final Statues statues = new Statues(this);
+	private final GuideBook guide = new GuideBook(this);
 
 	private Bosses() {
 		instance = this;
@@ -133,6 +135,10 @@ public final class Bosses {
 
 	public Statues statues() {
 		return statues;
+	}
+
+	public GuideBook guide() {
+		return guide;
 	}
 
 	public void later(int ticks, Runnable task) {
@@ -236,6 +242,14 @@ public final class Bosses {
 			relics.refresh(player);
 			if (settings != null && !nemesis.forOwner(player.getUUID()).isEmpty()) {
 				QuestFlags.markOnce(player, "nemesis_created");
+			}
+			if (settings != null && settings.guideOnFirstJoin && !Data.flag(player, BossKeys.GUIDE_GIVEN)) {
+				Data.flag(player, BossKeys.GUIDE_GIVEN, true);
+				later(40, () -> {
+					if (!player.hasDisconnected()) {
+						guide.give(player);
+					}
+				});
 			}
 		});
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> later(1, () -> {

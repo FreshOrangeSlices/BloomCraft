@@ -53,7 +53,7 @@ import java.util.function.Consumer;
  */
 public final class BossItems {
 
-	public enum Kind { GEAR, RUNE, RELIC, CATALYST, COMPASS, TOTEM, STATUE, WAYSTONE, SOUL, CHALLENGE }
+	public enum Kind { GEAR, RUNE, RELIC, CATALYST, COMPASS, TOTEM, STATUE, WAYSTONE, SOUL, CHALLENGE, GUIDE }
 
 	/** Lore lines wrap at about this many characters so tooltips stay on screen. */
 	private static final int LORE_WIDTH = 38;
