@@ -26,6 +26,19 @@ public final class Attrs {
 		}
 	}
 
+	/** Like {@link #set}, but the modifier is never saved (it's re-applied whenever it matters). */
+	public static void setTransient(LivingEntity e, Holder<Attribute> attribute, Identifier id, double amount,
+									AttributeModifier.Operation op) {
+		AttributeInstance inst = e.getAttribute(attribute);
+		if (inst == null) {
+			return;
+		}
+		inst.removeModifier(id);
+		if (Math.abs(amount) > 1.0E-6) {
+			inst.addTransientModifier(new AttributeModifier(id, amount, op));
+		}
+	}
+
 	public static void remove(LivingEntity e, Holder<Attribute> attribute, Identifier id) {
 		AttributeInstance inst = e.getAttribute(attribute);
 		if (inst != null) {

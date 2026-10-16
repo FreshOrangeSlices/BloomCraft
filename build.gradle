@@ -53,7 +53,8 @@ fabricApi {
 tasks.register("runProductionClientGameTest", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
 	jvmArgs.add("-Dfabric.client.gametest")
 	jvmArgs.add("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
-	useXVFB = true
+	// The Screenshots workflow runs its own X server with software OpenGL (-PexternalDisplay); otherwise Loom starts one
+	useXVFB = !project.hasProperty("externalDisplay")
 }
 
 processResources {

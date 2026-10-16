@@ -66,6 +66,14 @@ public final class Fx {
 		}
 	}
 
+	/** A friendly sound (pets, menus) everyone nearby hears. */
+	public static void neutral(Entity at, String key, float volume, float pitch) {
+		if (at.level() instanceof ServerLevel level) {
+			Sound sound = sound(key, volume, pitch);
+			level.playSound(null, at.getX(), at.getY(), at.getZ(), sound.event(), SoundSource.NEUTRAL, volume, pitch);
+		}
+	}
+
 	/** Only this player hears it. */
 	public static void playTo(ServerPlayer player, @Nullable Sound sound) {
 		if (sound != null) {

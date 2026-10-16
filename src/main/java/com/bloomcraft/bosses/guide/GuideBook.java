@@ -1,5 +1,6 @@
 package com.bloomcraft.bosses.guide;
 
+import com.bloomcraft.core.Books;
 import com.bloomcraft.bosses.BossKeys;
 import com.bloomcraft.bosses.BossRank;
 import com.bloomcraft.bosses.Bosses;
@@ -21,11 +22,8 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
@@ -83,14 +81,7 @@ public final class GuideBook {
 	 * opens it, and gets the real item back.
 	 */
 	public void open(ServerPlayer player, int volume) {
-		ItemStack book = volume(player, volume);
-		int slot = player.getInventory().getSelectedSlot();
-		int menuSlot = 36 + slot; // hotbar slots in the player's own inventory screen
-		var menu = player.inventoryMenu;
-		player.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), menuSlot, book));
-		player.connection.send(new ClientboundOpenBookPacket(InteractionHand.MAIN_HAND));
-		player.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), menuSlot,
-			player.getInventory().getItem(slot).copy()));
+		Books.open(player, volume(player, volume));
 	}
 
 	private static MutableComponent c(String text, int rgb) {

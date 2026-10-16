@@ -23,14 +23,18 @@ jobs:
         continue-on-error: true
         run: |
           chmod +x ./gradlew
-          sudo apt-get install -y -q xvfb > /dev/null
+          sudo apt-get update -q > /dev/null
+          sudo apt-get install -y -q xvfb libgl1-mesa-dri libglx-mesa0 libegl-mesa0 mesa-vulkan-drivers mesa-utils > /dev/null
+          export LIBGL_ALWAYS_SOFTWARE=1
           set -o pipefail
-          timeout 25m ./gradlew runProductionClientGameTest --console=plain 2>&1 | tee client.log
+          timeout 25m xvfb-run -a -s "-screen 0 1920x1080x24 +extension GLX +render -noreset" \
+            bash -c 'glxinfo -B || true; ./gradlew runProductionClientGameTest -PexternalDisplay --console=plain' 2>&1 | tee client.log
       - name: Publish to dev-shots
         if: always()
         run: |
           mkdir -p /tmp/out
           find . -path ./.git -prune -o -name '*.png' -path '*screenshots*' -print -exec cp {} /tmp/out/ \;
+          head -n 80 client.log > /tmp/out/client-head.txt || true
           tail -n 400 client.log > /tmp/out/client-log.txt || true
           grep -n -i -E 'missing|error|exception|failed' client.log | head -n 300 > /tmp/out/problems.txt || true
           ls -la /tmp/out
