@@ -22,15 +22,12 @@ import com.bloomcraft.core.Data;
 import com.bloomcraft.core.QuestFlags;
 import com.bloomcraft.core.Scheduler;
 import com.bloomcraft.core.Ticks;
-import com.bloomcraft.core.WorldStore;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -79,7 +76,6 @@ public final class Bosses {
 
 	public static void init() {
 		Bosses mod = new Bosses();
-		Data.init();
 		mod.load();
 		ModItems.init();
 		mod.registerEvents();
@@ -157,25 +153,6 @@ public final class Bosses {
 	// =====================================================================
 
 	private void registerEvents() {
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-			Ticks.server(server);
-			WorldStore.load(server);
-			load();
-			nemesis.load();
-			waystones.load();
-		});
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-			nemesis.shutdown();
-			waystones.shutdown();
-			bosses.shutdown();
-			relics.shutdown(server);
-			Scheduler.clear();
-			WorldStore.close();
-			Ticks.server(null);
-		});
-		ServerLifecycleEvents.BEFORE_SAVE.register((server, flush, force) -> WorldStore.save(false));
-		ServerTickEvents.END_SERVER_TICK.register(this::tick);
-
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
 			if (settings == null) {
 				return;
@@ -307,9 +284,23 @@ public final class Bosses {
 		LootBonus.register(this);
 	}
 
-	private void tick(MinecraftServer server) {
-		Ticks.tick();
-		Scheduler.tick();
+	/** Server starting (after the world's own save file is read). */
+	public void starting(MinecraftServer server) {
+		load();
+		nemesis.load();
+		waystones.load();
+	}
+
+	/** Server stopping (before the world's own save file is written for the last time). */
+	public void stopping(MinecraftServer server) {
+		nemesis.shutdown();
+		waystones.shutdown();
+		bosses.shutdown();
+		relics.shutdown(server);
+	}
+
+	/** Every server tick. */
+	public void tick(MinecraftServer server) {
 		if (settings == null) {
 			return;
 		}

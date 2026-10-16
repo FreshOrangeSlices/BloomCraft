@@ -8,5 +8,9 @@
 	"item.bloomcraft.hunters_compass": "Hunter's Compass",
 	"item.bloomcraft.nemesis_challenge": "Nemesis Challenge",
 	"item.bloomcraft.nemesis_statue": "Nemesis Statue",
-	"block.bloomcraft.waystone": "Waystone"
+	"block.bloomcraft.waystone": "Waystone",
+	"itemGroup.bloomcraft.pets": "BloomCraft: Pets",
+	"item.bloomcraft.pet_bloom": "Pet Bloom",
+	"item.bloomcraft.pet_toy": "Pet Toy",
+	"item.bloomcraft.fetch_stick": "Fetch Stick"
 }

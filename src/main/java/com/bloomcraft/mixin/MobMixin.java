@@ -3,6 +3,7 @@ package com.bloomcraft.mixin;
 import com.bloomcraft.bosses.Boss;
 import com.bloomcraft.bosses.Bosses;
 import com.bloomcraft.bosses.item.Statues;
+import com.bloomcraft.pets.Pets;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.DifficultyInstance;
@@ -42,7 +43,7 @@ abstract class MobMixin {
 	/** Statues stay, even in Peaceful. */
 	@Inject(method = "checkDespawn", at = @At("HEAD"), cancellable = true)
 	private void bloomcraft$statuesStay(CallbackInfo ci) {
-		if (Statues.isStatue((Mob) (Object) this)) {
+		if (Statues.isStatue((Mob) (Object) this) || Pets.isPet((Mob) (Object) this)) {
 			ci.cancel();
 		}
 	}
@@ -51,6 +52,10 @@ abstract class MobMixin {
 	@Inject(method = "setTarget", at = @At("HEAD"), cancellable = true)
 	private void bloomcraft$prowling(LivingEntity target, CallbackInfo ci) {
 		if (!(target instanceof ServerPlayer player)) {
+			return;
+		}
+		if (!Pets.mayTarget((Mob) (Object) this, player)) {
+			ci.cancel(); // a Fox makes you harder to notice; Cats keep creepers and phantoms away
 			return;
 		}
 		Bosses mod = Bosses.get();
@@ -63,12 +68,23 @@ abstract class MobMixin {
 		}
 	}
 
+	/** A pet's own AI is off: the pets part steers it every tick (it still moves, falls and swims). */
+	@Inject(method = "serverAiStep", at = @At("HEAD"), cancellable = true)
+	private void bloomcraft$steeredPet(CallbackInfo ci) {
+		if (Pets.steered((Mob) (Object) this)) {
+			ci.cancel();
+		}
+	}
+
 	/** Bosses can't be leashed. */
 	@Inject(method = "canBeLeashed", at = @At("HEAD"), cancellable = true)
 	private void bloomcraft$noLeash(CallbackInfoReturnable<Boolean> cir) {
 		Bosses mod = Bosses.get();
 		if (mod != null && mod.settings() != null && mod.settings().blockVehicles && mod.bosses().get((Mob) (Object) this) != null) {
 			cir.setReturnValue(false);
+		}
+		if (Pets.isPet((Mob) (Object) this)) {
+			cir.setReturnValue(false); // pets follow you without a lead
 		}
 	}
 }

@@ -1,7 +1,7 @@
 # BloomCraft: notes for working on the mod
 
 Fabric mod for Minecraft 26.3 (Mojang names, no remapping), Java 25. The mod version of the Bosses3 server plugins
-(github.com/FreshOrangeSlices/Bosses3), built in stages: Bosses (done), Pets, Quest Book + HUDs, Skills.
+(github.com/FreshOrangeSlices/Bosses3), built in stages: Bosses (done), Pets (in progress), Quest Book + HUDs, Skills.
 
 ## Building and checking
 
@@ -28,6 +28,13 @@ Fabric mod for Minecraft 26.3 (Mojang names, no remapping), Java 25. The mod ver
 - `bosses/`: everything from the Additional Bosses plugin (bosses, traits, combat pipeline, relics and curses, items,
   Nemesis, statues, waystones, guide books, commands). Config: `config/bloomcraft/bosses.yml` (defaults in the jar
   at `bloomcraft/bosses.yml`; missing keys in a player's file fall back to the defaults).
+- `pets/`: everything from the BloomPets plugin (taming by feeding, Pet Blooms / Pet Toy / Fetch Stick items, pets
+  steered every tick with their own AI off, riding, storage, stations, happiness, species bonuses, combat pets' Taming
+  skills, the pet menu, /pets). Pets live in `<world>/bloomcraft/pets/<uuid>.dat` (one file per owner); a pet mob is
+  never saved with the world (it's snapshotted into its record when it goes away). Config: `pets.yml`.
+- `skills/`: player skill levels (Taming so far; the full skill system is Stage 4). Kept on the player. Config:
+  `skills.yml`.
+- `BloomCraft.java` drives the server lifecycle and tick for every part (core first, then each module).
 - `mixin/`: every mixin. Keep them small; logic lives in the managers.
 
 ## Conventions

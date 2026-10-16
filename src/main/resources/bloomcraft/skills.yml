@@ -1,0 +1,37 @@
+config-version: 1   # used by the mod to update this file; don't change
+# =====================================================================
+#  BloomCraft - Skills
+# ---------------------------------------------------------------------
+#  You level skills up by doing things. Your levels are kept with your
+#  player (they survive death) and show in /skills.
+#  Taming is the first one: your combat pets learn new tricks as it grows
+#  (see /pets taming). More skills come later.
+#  After editing, run /skills reload (or leave and rejoin the world).
+# =====================================================================
+
+skills:
+  max-level: 100
+  # XP to go from level n to n+1: base + n * per-level
+  # (with these numbers: level 10 takes about 3,800 XP in total, level 50
+  # about 59,000, level 100 about 218,000).
+  xp-curve:
+    base: 200
+    per-level: 40
+  # Every skill's XP is multiplied by this (2 = twice as fast).
+  xp-multiplier: 1.0
+
+taming:
+  enabled: true
+  xp-multiplier: 1.0
+  xp:
+    # Each hit your combat pet lands: damage dealt x the target's value
+    # below x this. (A zombie hit for 6 is worth 6 x 2 x 3 = 36 XP.)
+    pet-hit-multiplier: 3
+    mob-values:
+      hostile: 2.0
+      animal: 1.0
+      other: 1.0
+      player: 4.0
+    new-pet: 150          # bonding with an animal
+    new-species: 300      # extra, the first time you bond with that kind of animal
+    pet-level-up: 40      # x the level your pet just reached

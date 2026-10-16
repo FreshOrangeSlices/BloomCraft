@@ -12,6 +12,8 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 
 /**
@@ -27,11 +29,15 @@ public class ServerMenu extends ChestMenu {
 
 	private final int size;
 	private final Handler handler;
+	private final Container items;
+	private final @Nullable Object key;
 
-	private ServerMenu(int containerId, Inventory inventory, int rows, Container items, Handler handler) {
+	private ServerMenu(int containerId, Inventory inventory, int rows, Container items, Handler handler, @Nullable Object key) {
 		super(type(rows), containerId, inventory, items, rows);
 		this.size = rows * 9;
 		this.handler = handler;
+		this.items = items;
+		this.key = key;
 	}
 
 	private static MenuType<ChestMenu> type(int rows) {
@@ -47,10 +53,32 @@ public class ServerMenu extends ChestMenu {
 
 	/** Opens a menu: {@code fill} puts the buttons in, {@code handler} hears the clicks. */
 	public static void open(ServerPlayer player, Component title, int rows, Consumer<Container> fill, Handler handler) {
+		open(player, title, rows, fill, handler, null);
+	}
+
+	/** {@code key} says which menu this is (and holds its state), for {@link #current} and redrawing. */
+	public static void open(ServerPlayer player, Component title, int rows, Consumer<Container> fill, Handler handler,
+							@Nullable Object key) {
 		int r = Math.max(1, Math.min(6, rows));
 		SimpleContainer items = new SimpleContainer(r * 9);
 		fill.accept(items);
-		player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new ServerMenu(id, inventory, r, items, handler), title));
+		player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new ServerMenu(id, inventory, r, items, handler, key), title));
+	}
+
+	/** The server menu this player has open, if any. */
+	public static @Nullable ServerMenu current(Player player) {
+		return player.containerMenu instanceof ServerMenu menu ? menu : null;
+	}
+
+	public @Nullable Object key() {
+		return key;
+	}
+
+	/** Clears the buttons and puts new ones in (the open screen updates). */
+	public void redraw(Consumer<Container> fill) {
+		items.clearContent();
+		fill.accept(items);
+		broadcastChanges();
 	}
 
 	@Override

@@ -581,6 +581,58 @@ def waystone():
 
 # ----------------------------------------------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------------------------------------------
+# Pets: the Pet Toy (a squeaky rubber bone), the Fetch Stick (a stick with a bow), the plain Pet Bloom
+# ----------------------------------------------------------------------------------------------------------------
+
+def pet_toy():
+    img = new()
+    pink = rgb(0xF58AC0)
+    bar = poly([(4, 10), (10, 4), (11, 5), (5, 11)])
+    knobs = union(ellipse((1, 9, 4, 12)), ellipse((4, 12, 7, 15)), ellipse((9, 1, 12, 4)), ellipse((12, 4, 15, 7)))
+    bone = union(bar, knobs)
+    outline(img, bone, rgb(0x7A2050))
+    fill_shaded(img, bone, pink, light=1.25, dark=0.7)
+    # a little heart in the middle
+    put(img, [(10, 2), (13, 5)], (255, 230, 245, 255))
+    save_item_texture("pet_toy", img)
+    return item_model("pet_toy")
+
+
+def fetch_stick():
+    img = new()
+    wood = rgb(0x8A5A2A)
+    stick = poly([(2, 13), (12, 3), (13, 4), (3, 14)])
+    twig = poly([(8, 7), (9, 4), (10, 4), (9, 7)])
+    shape = union(stick, twig)
+    outline(img, shape, rgb(0x3A2410))
+    fill_shaded(img, shape, wood, light=1.3, dark=0.65)
+    # a red bow near the top
+    bow = union(poly([(10, 3), (13, 1), (14, 3)]), poly([(12, 5), (15, 5), (13, 7)]), ellipse((11, 3, 13, 5)))
+    outline(img, bow, rgb(0x500808))
+    fill_shaded(img, bow, rgb(0xE02828), light=1.3, dark=0.7)
+    save_item_texture("fetch_stick", img)
+    return item_model("fetch_stick", parent="minecraft:item/handheld")
+
+
+def pet_bloom():
+    img = new()
+    petal = rgb(0xF5A9D0)
+    petals = union(*[ellipse((int(7.5 + math.cos(math.radians(a)) * 3.6) - 2, int(6.5 + math.sin(math.radians(a)) * 3.6) - 2,
+                               int(7.5 + math.cos(math.radians(a)) * 3.6) + 2, int(6.5 + math.sin(math.radians(a)) * 3.6) + 2))
+                     for a in range(0, 360, 72)])
+    stem = rect((7, 10, 8, 15))
+    leaf = poly([(8, 13), (11, 11), (12, 12), (9, 14)])
+    glow(img, (7.5, 6.5), rgb(0xFFD0EA), radius=7.5, strength=0.35)
+    outline(img, union(petals, stem, leaf), rgb(0x6A2048))
+    fill_shaded(img, union(stem, leaf), rgb(0x4A9A3A))
+    fill_shaded(img, petals, petal, light=1.25, dark=0.75)
+    heart = ellipse((6, 5, 9, 8))
+    fill_shaded(img, heart, rgb(0xFFD84A), light=1.3, dark=0.8, highlight=False)
+    save_item_texture("pet_bloom", img)
+    return item_model("pet_bloom")
+
+
 def icon():
     """The mod icon (64x64): a bloom with a skull at its heart."""
     img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
@@ -613,6 +665,9 @@ def main():
     single("nemesis_statue", statue())
     compass_definition(compass_frames())
     waystone()
+    single("pet_toy", pet_toy())
+    single("fetch_stick", fetch_stick())
+    single("pet_bloom", pet_bloom())
     icon()
     if "--preview" in sys.argv:
         out = sys.argv[sys.argv.index("--preview") + 1]

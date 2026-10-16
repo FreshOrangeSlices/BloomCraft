@@ -10,7 +10,8 @@
 			"com.bloomcraft.test.BossTest",
 			"com.bloomcraft.test.CurseTest",
 			"com.bloomcraft.test.NemesisTest",
-			"com.bloomcraft.test.WaystoneTest"
+			"com.bloomcraft.test.WaystoneTest",
+			"com.bloomcraft.test.PetTest"
 		],
 		"fabric-client-gametest": [
 			"com.bloomcraft.test.client.ScreenshotTest"

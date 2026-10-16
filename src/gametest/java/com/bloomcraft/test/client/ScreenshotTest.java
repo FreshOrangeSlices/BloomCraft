@@ -6,6 +6,11 @@ import com.bloomcraft.bosses.item.BossItems;
 import com.bloomcraft.bosses.item.ModItems;
 import com.bloomcraft.bosses.relic.RelicEffect;
 import com.bloomcraft.bosses.waystone.Waystones;
+import com.bloomcraft.pets.Blooms;
+import com.bloomcraft.pets.Pet;
+import com.bloomcraft.pets.PetGuide;
+import com.bloomcraft.pets.Pets;
+import com.bloomcraft.pets.Species;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
@@ -15,11 +20,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Takes screenshots in a real game (run by the Screenshots workflow): the inventory full of the mod's items, and a
@@ -34,6 +43,7 @@ public class ScreenshotTest implements FabricClientGameTest {
 			game.getServer().runOnServer(ScreenshotTest::fillInventory);
 			context.waitTicks(10);
 			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
+			context.getInput().setCursorPos(2, 2); // out of the way, so no tooltip covers the items
 			context.waitTicks(20);
 			context.takeScreenshot("bloomcraft_inventory");
 			game.getServer().runOnServer(server -> fillInventoryPage(server, 1));
@@ -61,6 +71,10 @@ public class ScreenshotTest implements FabricClientGameTest {
 		items.add(Waystones.item(null));
 		items.add(new ItemStack(ModItems.NEMESIS_STATUE));
 		items.add(new ItemStack(ModItems.NEMESIS_CHALLENGE));
+		items.add(Blooms.toy());
+		items.add(Blooms.fetchStick());
+		items.add(Blooms.create(new Pet(UUID.randomUUID(), UUID.randomUUID(), Species.FOX, "Mochi", Pet.RideStyle.NORMAL)));
+		items.add(PetGuide.book());
 		for (var stat : Bosses.get().settings().empowermentStats) {
 			items.add(BossItems.rune(BossRank.GOLD, stat, stat.roll(BossRank.GOLD, true)));
 		}
@@ -98,6 +112,17 @@ public class ScreenshotTest implements FabricClientGameTest {
 			zombie.setNoAi(true);
 			level.addFreshEntity(zombie);
 			Bosses.get().bosses().createBoss(zombie, BossRank.GOLD, "test", List.of(), false);
+		}
+		// a pet: a wolf bonded the way a player would (sneak + meat), standing next to you
+		Wolf wolf = EntityTypes.WOLF.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+		if (wolf != null) {
+			wolf.snapTo(base.getX() - 1.5, base.getY(), base.getZ() + 3.5, 200, 0);
+			level.addFreshEntity(wolf);
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BEEF, 16));
+			for (int i = 0; i < 8 && Pets.get().pets().of(wolf) == null; i++) {
+				Pets.get().pets().bond(player, wolf, Species.WOLF, InteractionHand.MAIN_HAND);
+			}
+			player.setItemInHand(InteractionHand.MAIN_HAND, Blooms.toy());
 		}
 		player.snapTo(base.getX() + 0.5, base.getY(), base.getZ() + 0.5, 0, 15);
 		player.connection.teleport(base.getX() + 0.5, base.getY(), base.getZ() + 0.5, 0, 15);

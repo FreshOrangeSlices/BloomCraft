@@ -3,13 +3,18 @@
 	"package": "com.bloomcraft.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"AbstractHorseAccess",
 		"AgeableMobInvoker",
 		"CreeperAccessor",
 		"EntityMixin",
+		"FoxInvoker",
 		"ItemEntityMixin",
 		"LivingEntityMixin",
 		"MobMixin",
-		"PlayerMixin"
+		"PigMixin",
+		"PlayerDropsMixin",
+		"PlayerMixin",
+		"VexAccess"
 	],
 	"injectors": {
 		"defaultRequire": 1
