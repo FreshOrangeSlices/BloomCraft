@@ -67,6 +67,19 @@ public class ScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(30);
 			context.takeScreenshot("bloomcraft_riding");
+			// punching the air with the Pet Toy opens the pet menu (the click goes from the game client to the server)
+			game.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				player.stopRiding();
+				player.setItemInHand(InteractionHand.MAIN_HAND, Blooms.toy());
+			});
+			context.waitTicks(20);
+			context.getInput().lookAt(0, -80);
+			context.getInput().pressKey(options -> options.keyAttack);
+			context.waitTicks(20);
+			boolean menu = context.computeOnClient(mc -> mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.ContainerScreen);
+			com.bloomcraft.BloomCraft.LOG.info("SCREENSHOT CHECK: punching the air with the Pet Toy opened the pet menu: {}", menu);
+			context.takeScreenshot("bloomcraft_punch_menu");
 		}
 	}
 

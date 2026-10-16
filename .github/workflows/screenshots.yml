@@ -36,7 +36,7 @@ jobs:
           find . -path ./.git -prune -o -name '*.png' -path '*screenshots*' -print -exec cp {} /tmp/out/ \;
           head -n 80 client.log > /tmp/out/client-head.txt || true
           tail -n 400 client.log > /tmp/out/client-log.txt || true
-          grep -n -i -E 'missing|error|exception|failed' client.log | head -n 300 > /tmp/out/problems.txt || true
+          grep -n -i -E 'missing|error|exception|failed|SCREENSHOT CHECK' client.log | head -n 300 > /tmp/out/problems.txt || true
           ls -la /tmp/out
           cd /tmp/out
           git init -q -b dev-shots
