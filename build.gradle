@@ -49,8 +49,15 @@ fabricApi {
 	}
 }
 
+// The test mod (src/gametest) as its own jar, so the production client run below can load it.
+tasks.register("gametestJar", Jar) {
+	archiveClassifier.set("gametest")
+	from sourceSets.gametest.output
+}
+
 // Client game test in a real (virtual-screen) game, taking screenshots: run by the Screenshots workflow.
 tasks.register("runProductionClientGameTest", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+	mods.from(tasks.named("gametestJar"))
 	jvmArgs.add("-Dfabric.client.gametest")
 	jvmArgs.add("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
 	// The Screenshots workflow runs its own X server with software OpenGL (-PexternalDisplay); otherwise Loom starts one
