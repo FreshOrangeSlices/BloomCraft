@@ -53,11 +53,30 @@ public class ScreenshotTest implements FabricClientGameTest {
 			game.getServer().runOnServer(ScreenshotTest::buildScene);
 			context.waitTicks(60);
 			context.takeScreenshot("bloomcraft_world");
+			game.getServer().runOnServer(server -> Pets.get().menus().openPets(server.getPlayerList().getPlayers().getFirst()));
+			context.waitTicks(20);
+			context.getInput().setCursorPos(2, 2);
+			context.takeScreenshot("bloomcraft_pet_menu");
+			game.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				player.closeContainer();
+				var pet = Pets.get().pets().active(player.getUUID());
+				if (pet != null) {
+					Pets.get().rides().tryMount(player, pet);
+				}
+			});
+			context.waitTicks(30);
+			context.takeScreenshot("bloomcraft_riding");
 		}
 	}
 
 	private static List<ItemStack> showcase() {
 		List<ItemStack> items = new ArrayList<>();
+		items.add(Blooms.toy());
+		items.add(Blooms.fetchStick());
+		items.add(Blooms.create(new Pet(UUID.randomUUID(), UUID.randomUUID(), Species.FOX, "Mochi", Pet.RideStyle.NORMAL)));
+		items.add(Blooms.create(new Pet(UUID.randomUUID(), UUID.randomUUID(), Species.CAT, "Biscuit", Pet.RideStyle.NORMAL)));
+		items.add(PetGuide.book());
 		for (BossRank rank : BossRank.values()) {
 			items.add(BossItems.soul(rank, 1));
 		}
@@ -71,10 +90,7 @@ public class ScreenshotTest implements FabricClientGameTest {
 		items.add(Waystones.item(null));
 		items.add(new ItemStack(ModItems.NEMESIS_STATUE));
 		items.add(new ItemStack(ModItems.NEMESIS_CHALLENGE));
-		items.add(Blooms.toy());
-		items.add(Blooms.fetchStick());
-		items.add(Blooms.create(new Pet(UUID.randomUUID(), UUID.randomUUID(), Species.FOX, "Mochi", Pet.RideStyle.NORMAL)));
-		items.add(PetGuide.book());
+
 		for (var stat : Bosses.get().settings().empowermentStats) {
 			items.add(BossItems.rune(BossRank.GOLD, stat, stat.roll(BossRank.GOLD, true)));
 		}
