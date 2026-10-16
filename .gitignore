@@ -38,3 +38,6 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# dev kit (tools/dev/fetch-kit.sh)
+.devkit/
